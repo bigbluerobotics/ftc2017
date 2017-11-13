@@ -8,10 +8,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
  */
 
 public class ClawControls {
-    private double leftOpen = 0.0;
+    private double leftOpen = 0;
     private double leftClosed = 0.6;
-    private double rightOpen = 0.96;
-    private double rightClosed = 0.36;
+    private double rightOpen = 1;
+    private double rightClosed = 0.1;
 
     private Servo leftClaw;
     private Servo rightClaw;
