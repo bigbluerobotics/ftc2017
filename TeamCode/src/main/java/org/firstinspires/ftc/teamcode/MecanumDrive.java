@@ -8,10 +8,11 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
  */
 
 public class MecanumDrive {
-    private DcMotor leftFront = null;
-    private DcMotor leftRear = null;
-    private DcMotor rightFront = null;
-    private DcMotor rightRear = null;
+    public DcMotor leftFront = null;
+    public DcMotor leftRear = null;
+    public DcMotor rightFront = null;
+    public DcMotor rightRear = null;
+    public double strafeAdjustment = 0.2;
 
     public MecanumDrive(HardwareMap hardwareMap){
         leftFront = hardwareMap.get(DcMotor.class, "left_front");
@@ -35,7 +36,71 @@ public class MecanumDrive {
         rightRear.setPower(rightRearPower);
     }
 
+    public void moveEncoderStraight(double inches, double power){
+        power = Math.abs(power);
+        leftFront.setTargetPosition((int) (leftFront.getCurrentPosition() + (inches * 140 / Math.PI))); // should be divided by 4 times pi times 20 times 7
+        rightFront.setTargetPosition((int) (rightFront.getCurrentPosition() + (inches * 140 / Math.PI))); // should be divided by 4 times pi times 20 times 7
+        leftRear.setTargetPosition((int) (leftRear.getCurrentPosition() + (inches * 140 / Math.PI))); // should be divided by 4 times pi times 20 times 7
+        rightRear.setTargetPosition((int) (rightRear.getCurrentPosition() + (inches * 140 / Math.PI))); // should be divided by 4 times pi times 20 times 7
+
+        if(inches < 0){
+            power *= -1;
+        }
+        leftFront.setPower(power);
+        rightFront.setPower(power);
+        leftRear.setPower(power);
+        rightRear.setPower(power);
+    }
+
+    public void encoderTurn(double degrees, double power){
+        boolean turnRight = degrees > 0;
+        power = Math.abs(power);
+
+        double inches = degrees/180 * Math.PI * 11.5;
+        int leftFrontTarget = (int) (leftFront.getCurrentPosition() - (inches * 140 / Math.PI));
+        int leftRearTarget = (int) (leftRear.getCurrentPosition() - (inches * 140 / Math.PI));
+        int rightFrontTarget = (int) (rightFront.getCurrentPosition() + (inches * 140 / Math.PI));
+        int rightRearTarget = (int) (rightRear.getCurrentPosition() + (inches * 140 / Math.PI));
+
+        leftFront.setTargetPosition(leftFrontTarget);
+        leftRear.setTargetPosition(leftRearTarget);
+        rightFront.setTargetPosition(rightFrontTarget);
+        rightRear.setTargetPosition(rightRearTarget);
+        if(turnRight){
+            leftFront.setPower(-power);
+            leftRear.setPower(-power);
+            rightFront.setPower(power);
+            rightRear.setPower(power);
+        }else{
+            leftFront.setPower(power);
+            leftRear.setPower(power);
+            rightFront.setPower(-power);
+            rightRear.setPower(-power);
+        }
+    }
+
+    public boolean encoderDone(){
+        return encoderLeftDone() || encoderRightDone();
+    }
+
+    public boolean encoderLeftDone(){
+        if(leftFront.getPower() < 0){
+            return leftFront.getCurrentPosition() < leftFront.getTargetPosition() || leftRear.getCurrentPosition() < leftRear.getTargetPosition();
+        }else {
+            return leftFront.getCurrentPosition() > leftFront.getTargetPosition() || leftRear.getCurrentPosition() > leftRear.getTargetPosition();
+        }
+    }
+
+    public boolean encoderRightDone(){
+        if(rightFront.getPower() < 0){
+            return rightFront.getCurrentPosition() < rightFront.getTargetPosition() || rightRear.getCurrentPosition() < rightRear.getTargetPosition();
+        }else {
+            return rightFront.getCurrentPosition() > rightFront.getTargetPosition() || rightRear.getCurrentPosition() > rightRear.getTargetPosition();
+        }
+    }
+
     public void polarMove(double angle, double turn, double power){
+        //turn += Math.sin(angle)*strafeAdjustment*power;
         final double v1 = power * Math.cos(angle) + turn;
         final double v2 = power * Math.sin(angle) - turn;
         final double v3 = power * Math.sin(angle) + turn;

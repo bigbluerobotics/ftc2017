@@ -1,3 +1,10 @@
+repositories {
+    flatDir {
+        dirs 'libs', 'C:\\Users\\Big Blue Robotics\\navx-micro\\android\\libs'
+    }
+}
+
+
 dependencies {
     compile (name:'Inspection-release', ext: 'aar')
     compile (name:'Blocks-release', ext: 'aar')
@@ -6,4 +13,5 @@ dependencies {
     compile (name:'FtcCommon-release', ext: 'aar')
     compile (name:'Analytics-release', ext:'aar')
     compile (name:'WirelessP2p-release', ext:'aar')
+    compile (name: 'navx_ftc-release', ext:'aar')
 }

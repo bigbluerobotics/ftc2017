@@ -29,12 +29,18 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.kauailabs.navx.ftc.AHRS;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Axis;
+
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
  * An OpMode is a 'program' that runs in either the autonomous or the teleop period of an FTC match.
@@ -52,17 +58,25 @@ import com.qualcomm.robotcore.hardware.Servo;
 @TeleOp(name="Driving")
 public class Drive1 extends OpMode
 {
+    public NavxMicroNavigationSensor navx = null;
+
+    public AHRS navx_device;
+    public String startDate;
+    public ElapsedTime runtime = new ElapsedTime();
+    public boolean calibration_complete = false;
+    private final int NAVX_DIM_I2C_PORT = 2;
+
+    private final byte NAVX_DEVICE_UPDATE_RATE_HZ = 50;
+
     // Declare OpMode members.
-    private ElapsedTime runtime = new ElapsedTime();
     private DcMotor winchDrive = null;
     private ClawControls clawControls = null;
     private MecanumDrive mecanumDrive = null;
     private RelicArm relicArm = null;
     private Servo jewelServo = null;
     private ColorSensor colorSensor = null;
-    private boolean glyphButtonPressed = false;
-    private boolean handButtonPressed = false;
-    private boolean wristButtonPressed = false;
+    private int offsetAngle = 0;
+
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -77,12 +91,17 @@ public class Drive1 extends OpMode
         clawControls = new ClawControls(hardwareMap);
         mecanumDrive = new MecanumDrive(hardwareMap);
 
+
         winchDrive.setDirection(DcMotor.Direction.FORWARD);
         jewelServo = hardwareMap.get(Servo.class, "jewel_servo");
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
         colorSensor = hardwareMap.get(ColorSensor.class, "color_sensor");
+        clawControls.open();
+        //jewelServo.setPosition(0.075);
+
     }
+
 
     /*
      * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
@@ -106,16 +125,44 @@ public class Drive1 extends OpMode
     @Override
     public void loop() {
         //Fine motor controls
-        if (gamepad1.dpad_up) {
-            mecanumDrive.move(-.6,-.6,-.6,-.6);
-        } else if (gamepad1.dpad_down){
-            mecanumDrive.move(.6, .6, .6, .6);
-        } else if (gamepad1.dpad_left) {
-            mecanumDrive.move(.6, -.6, -.6, .6);
-        } else if (gamepad1.dpad_right){
-            mecanumDrive.move(-.6, .6, .6, -.6);
+        //create a factor up here so if fine movement needs to be adjusted, it can be in one fi
+        telemetry.addData("Position", "1");
+        telemetry.update();
+        telemetry.addData("motor-left-front", mecanumDrive.leftFront.getCurrentPosition());
+        telemetry.addData("motor-left-back", mecanumDrive.leftRear.getCurrentPosition());
+        telemetry.addData("motor-right-front", mecanumDrive.rightFront.getCurrentPosition());
+        telemetry.addData("motor-right-back", mecanumDrive.rightRear.getCurrentPosition());
+
+        telemetry.addData("Position", "2");
+        telemetry.update();
+
+        if(gamepad2.dpad_up){
+            relicArm.wristUp();
+        }else if(gamepad2.dpad_down){
+            relicArm.wristDown();
         }
-        if (gamepad2.y) {
+
+        telemetry.addData("Position", "3");
+        telemetry.update();
+
+        if(gamepad2.dpad_left){
+            relicArm.grab();
+        }else if(gamepad2.dpad_right){
+            relicArm.ungrab();
+        }
+
+        if(gamepad2.a){
+            clawControls.open();
+        }else if(gamepad2.y){
+            clawControls.close();
+        }else if(gamepad2.b){
+            clawControls.halfOpen();
+        }
+
+        telemetry.addData("Position", "4");
+        telemetry.update();
+
+        /*if (gamepad2.y) {
             if (relicArm.isWristUp && !wristButtonPressed){
                 relicArm.wristDown();
             }else if (!relicArm.isWristUp && !wristButtonPressed) {
@@ -144,46 +191,79 @@ public class Drive1 extends OpMode
             glyphButtonPressed = true;
         }else {
             glyphButtonPressed = false;
-        }
+        }*/
 
         if (gamepad2.left_trigger > 0){
-            relicArm.push();
+            winchDrive.setPower(gamepad2.left_trigger);
         }else if (gamepad2.right_trigger > 0){
-            relicArm.pull();
+            winchDrive.setPower(-gamepad2.right_trigger);
         }else{
-            relicArm.stop();
+            winchDrive.setPower(0);
         }
+
+        telemetry.addData("Position", "5");
+        telemetry.update();
 
         if (gamepad2.left_bumper)
-            winchDrive.setPower(1);
+            relicArm.push(1);
         else if (gamepad2.right_bumper)
-            winchDrive.setPower(-1);
+            relicArm.pull(1);
         else
-            winchDrive.setPower(0);
+            relicArm.stop();
 
-        if(gamepad1.x){
-            if(jewelServo.getPosition() >= 0) {
-                jewelServo.setPosition(jewelServo.getPosition() + 0.0025);
-            }
+        if(gamepad1.left_bumper){
+            jewelServo.setPosition(0.85);
         }
-        if(gamepad1.y){
-            if(jewelServo.getPosition() <= 1) {
-                jewelServo.setPosition(jewelServo.getPosition() - 0.0025);
-            }
+        else if(gamepad1.right_bumper){
+            jewelServo.setPosition(0.1);
         }
 
-        double speed = .8;
-        double magnitude = Math.hypot(-gamepad1.left_stick_x, gamepad1.left_stick_y);
-        double robotAngle = Math.atan2(gamepad1.left_stick_y, -gamepad1.left_stick_x) - Math.PI / 4;
-        double rightX = -gamepad1.right_stick_x;
-        mecanumDrive.polarMove(robotAngle, rightX, speed*magnitude);
+        telemetry.addData("Position", "6");
+        telemetry.update();
+
+        if(gamepad1.y) {
+            offsetAngle = 0;
+        }else if(gamepad1.x){
+            offsetAngle = 90;
+        }else if(gamepad1.a){
+            offsetAngle = 180;
+        }else if(gamepad1.b){
+            offsetAngle = 270;
+        }
+
+        telemetry.addData("Position", "7");
+        telemetry.update();
+
+
+
+        if(gamepad1.dpad_up || gamepad1.dpad_left || gamepad1.dpad_down ||gamepad1.dpad_right){
+            double direction = (gamepad1.dpad_up?0:0) + (gamepad1.dpad_left?90:0) + (gamepad1.dpad_down?180:0) + (gamepad1.dpad_right?270:0);
+            int mag = (gamepad1.dpad_up?1:0) + (gamepad1.dpad_left?1:0) + (gamepad1.dpad_down?1:0) + (gamepad1.dpad_right?1:0);
+
+            if (mag != 0) direction /= mag;
+            direction -= 135;
+            direction += offsetAngle;
+            mecanumDrive.polarMove(direction/360*2*Math.PI, 0, 0.35);
+        } else {
+            double speed = 0.6;
+            if(gamepad1.right_trigger > 0.5){
+                speed += (1-speed)*(2*(gamepad1.right_trigger - 0.5));
+            }
+            double magnitude = Math.hypot(-gamepad1.left_stick_x, gamepad1.left_stick_y);
+            double robotAngle = Math.atan2(gamepad1.left_stick_y, -gamepad1.left_stick_x) - Math.PI / 4;
+            telemetry.addData("robot angle", robotAngle);
+            robotAngle += offsetAngle / 180.0 * Math.PI;
+            double rightX = -gamepad1.right_stick_x;
+            mecanumDrive.polarMove(robotAngle, rightX, speed * magnitude);
+        }
 
         telemetry.addData("Status", "Run Time: " + runtime.toString());
-
         telemetry.addData("red", colorSensor.red());
         telemetry.addData("green", colorSensor.green());
         telemetry.addData("blue", colorSensor.blue());
         telemetry.addData("Status", "Run Time: " + runtime.toString());
+        telemetry.addData("Position", "9");
+        telemetry.update();
     }
 
     /*

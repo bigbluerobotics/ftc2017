@@ -8,10 +8,12 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
  */
 
 public class ClawControls {
-    private double leftOpen = 0;
-    private double leftClosed = 0.6;
-    private double rightOpen = 1;
+    private double leftOpen = 0.185;
+    private double leftClosed = 0.65;
+    private double leftHalf = 0.5;
+    private double rightOpen = 0.95;
     private double rightClosed = 0.1;
+    private double rightHalf = 0.25;
 
     private Servo leftClaw;
     private Servo rightClaw;
@@ -32,6 +34,16 @@ public class ClawControls {
         leftClaw.setPosition(leftOpen);
         rightClaw.setPosition(rightOpen);
         isOpen = true;
+    }
+
+    public void halfOpen(){
+        leftClaw.setPosition(leftHalf);
+        rightClaw.setPosition(rightHalf);
+    }
+
+    public void closeOne(){
+        leftClaw.setPosition(leftClosed);
+        rightClaw.setPosition(rightOpen);
     }
 
 }

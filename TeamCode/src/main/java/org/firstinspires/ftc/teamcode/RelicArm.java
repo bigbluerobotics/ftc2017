@@ -9,10 +9,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
  */
 
 public class RelicArm {
-    private double open = 1;
-    private double closed = 0;
-    private double wristUp = 1;
-    private double wristDown = 0;
+    private double open = 0.1;
+    private double closed = 0.9;
+    private double wristUp = 0.2;
+    private double wristDown = 0.9;
     private double motorPower = 0.75;
     public boolean isHandOpen = false;
     public boolean isWristUp = false;
@@ -26,15 +26,14 @@ public class RelicArm {
         hand = hardwareMap.get(Servo.class,"clawHand");
         wrist = hardwareMap.get(Servo.class,"clawWrist");
     }
-    public void push(){
-        relicExtension.setPower(motorPower);
+    public void push(double speed){
+        relicExtension.setPower(motorPower*speed);
     }
-    public void pull(){
-        relicExtension.setPower(-motorPower);
+    public void pull(double speed){
+        relicExtension.setPower(-motorPower*speed);
     }
     public void stop(){
         relicExtension.setPower(0);
-
     }
     public void grab(){
         hand.setPosition(closed);

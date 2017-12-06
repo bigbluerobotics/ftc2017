@@ -28,7 +28,7 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
-
+/*
 package org.firstinspires.ftc.teamcode;
 
 import com.kauailabs.navx.ftc.AHRS;
@@ -38,7 +38,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.text.DecimalFormat;
-
+*/
 /**
  *  navX-Micro Processed Data Mode Op
  * <p>
@@ -49,6 +49,7 @@ import java.text.DecimalFormat;
  * Sensor Status and Timestamp, and World-Frame Linear
  * Acceleration data.
  */
+/*
 @TeleOp(name = "Sensor: navX Motion-processed Data", group = "Sensor")
 // @Disabled Comment this in to remove this from the Driver Station OpMode List
 public class NavTest extends OpMode {
@@ -56,6 +57,7 @@ public class NavTest extends OpMode {
     /* This is the port on the Core Device Interace Module */
   /* in which the navX-Micro is connected.  Modify this  */
   /* depending upon which I2C port you are using.        */
+  /*
     private final int NAVX_DIM_I2C_PORT = 2;
 
     private String startDate;
@@ -78,6 +80,7 @@ public class NavTest extends OpMode {
        * Code to run when the op mode is first enabled goes here
        * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#start()
        */
+  /*
     @Override
     public void init_loop() {
         telemetry.addData("navX Op Init Loop", runtime.toString());
@@ -87,6 +90,7 @@ public class NavTest extends OpMode {
      * This method will be called repeatedly in a loop
      * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#loop()
      */
+  /*
     @Override
     public void loop() {
 
@@ -134,3 +138,4 @@ public class NavTest extends OpMode {
     }
 
 }
+*/
