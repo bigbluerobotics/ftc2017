@@ -11,8 +11,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class RelicArm {
     private double open = 0.1;
     private double closed = 0.9;
-    private double wristUp = 0.2;
-    private double wristDown = 0.9;
+    private double wristUp = 0.1;
+    private double wristDown = 0.8;
     private double motorPower = 0.75;
     public boolean isHandOpen = false;
     public boolean isWristUp = false;

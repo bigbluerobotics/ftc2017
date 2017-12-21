@@ -36,6 +36,19 @@ public class MecanumDrive {
         rightRear.setPower(rightRearPower);
     }
 
+    public void moveEncoderStrafeRight(double inches, double power){
+        power = Math.abs(power);
+        leftFront.setTargetPosition((int) (leftFront.getCurrentPosition() + (inches * 140 / Math.PI))); // should be divided by 4 times pi times 20 times 7
+        rightFront.setTargetPosition((int) (rightFront.getCurrentPosition() - (inches * 140 / Math.PI))); // should be divided by 4 times pi times 20 times 7
+        leftRear.setTargetPosition((int) (leftRear.getCurrentPosition() - (inches * 140 / Math.PI))); // should be divided by 4 times pi times 20 times 7
+        rightRear.setTargetPosition((int) (rightRear.getCurrentPosition() + (inches * 140 / Math.PI))); // should be divided by 4 times pi times 20 times 7
+
+        leftFront.setPower(power);
+        rightFront.setPower(power);
+        leftRear.setPower(power);
+        rightRear.setPower(power);
+    }
+
     public void moveEncoderStraight(double inches, double power){
         power = Math.abs(power);
         leftFront.setTargetPosition((int) (leftFront.getCurrentPosition() + (inches * 140 / Math.PI))); // should be divided by 4 times pi times 20 times 7
@@ -80,27 +93,42 @@ public class MecanumDrive {
     }
 
     public boolean encoderDone(){
-        return encoderLeftDone() || encoderRightDone();
+        return encoderLeftFrontDone() || encoderLeftRearDone() || encoderRightFrontDone() || encoderRightRearDone();
     }
 
-    public boolean encoderLeftDone(){
+    public boolean encoderLeftFrontDone(){
         if(leftFront.getPower() < 0){
-            return leftFront.getCurrentPosition() < leftFront.getTargetPosition() || leftRear.getCurrentPosition() < leftRear.getTargetPosition();
+            return leftFront.getCurrentPosition() < leftFront.getTargetPosition();
         }else {
-            return leftFront.getCurrentPosition() > leftFront.getTargetPosition() || leftRear.getCurrentPosition() > leftRear.getTargetPosition();
+            return leftFront.getCurrentPosition() > leftFront.getTargetPosition();
         }
     }
 
-    public boolean encoderRightDone(){
-        if(rightFront.getPower() < 0){
-            return rightFront.getCurrentPosition() < rightFront.getTargetPosition() || rightRear.getCurrentPosition() < rightRear.getTargetPosition();
+    public boolean encoderLeftRearDone(){
+        if(leftRear.getPower() < 0){
+            return leftRear.getCurrentPosition() < leftRear.getTargetPosition();
         }else {
-            return rightFront.getCurrentPosition() > rightFront.getTargetPosition() || rightRear.getCurrentPosition() > rightRear.getTargetPosition();
+            return leftRear.getCurrentPosition() < leftRear.getTargetPosition();
+        }
+    }
+
+    public boolean encoderRightFrontDone(){
+        if(rightFront.getPower() < 0){
+            return rightFront.getCurrentPosition() < rightFront.getTargetPosition();
+        }else {
+            return rightFront.getCurrentPosition() > rightFront.getTargetPosition();
+        }
+    }
+
+    public boolean encoderRightRearDone(){
+        if(rightRear.getPower() < 0){
+            return rightRear.getCurrentPosition() < rightRear.getTargetPosition();
+        }else {
+            return rightRear.getCurrentPosition() < rightRear.getTargetPosition();
         }
     }
 
     public void polarMove(double angle, double turn, double power){
-        //turn += Math.sin(angle)*strafeAdjustment*power;
         final double v1 = power * Math.cos(angle) + turn;
         final double v2 = power * Math.sin(angle) - turn;
         final double v3 = power * Math.sin(angle) + turn;

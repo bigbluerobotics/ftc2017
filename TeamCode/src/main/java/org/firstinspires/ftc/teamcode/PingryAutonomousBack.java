@@ -1,11 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
-
-import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -14,14 +9,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
-import org.firstinspires.ftc.robotcore.external.navigation.VuMarkInstanceId;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
 
-public abstract class PingryAutonomous extends LinearOpMode
+public abstract class PingryAutonomousBack extends LinearOpMode
 {
     public static final boolean RED = true;
     public static final boolean BLUE = false;
@@ -39,7 +32,7 @@ public abstract class PingryAutonomous extends LinearOpMode
     public VuforiaTrackable relicTemplate;
     public char glyphPos = 'c';
 
-    public PingryAutonomous() {}
+    public PingryAutonomousBack() {}
 
     public void runOpMode() throws InterruptedException{
         colorSensor = hardwareMap.get(ColorSensor.class, "color_sensor");
@@ -75,9 +68,9 @@ public abstract class PingryAutonomous extends LinearOpMode
         telemetry.addData(">", "Press Play to start");
         telemetry.update();
 
-        /*winchDrive.setPower(.75);
+        winchDrive.setPower(.75);
         twait(700);
-        winchDrive.setPower(0);*/
+        winchDrive.setPower(0);
 
         waitForStart();
 
@@ -102,56 +95,38 @@ public abstract class PingryAutonomous extends LinearOpMode
         telemetry.addData("Left target:", mecanumDrive.leftFront.getTargetPosition());
         telemetry.addData("Left current:", mecanumDrive.leftFront.getCurrentPosition());
         telemetry.update();
-        if(this.allianceColor == BLUE){
-            mecanumDrive.moveEncoderStraight(-6.5, 0.2);
-            while(!mecanumDrive.encoderDone()&&opModeIsActive()){
-                telemetry.addData("Left target:", mecanumDrive.leftFront.getTargetPosition());
-                telemetry.addData("Left current:", mecanumDrive.leftFront.getCurrentPosition());
-                telemetry.update();
-            }
-        }
-        if (glyphPos == 'l') {
-            if(this.allianceColor == RED) {
-                mecanumDrive.moveEncoderStraight(40, 0.2);
-            }else{
-                mecanumDrive.moveEncoderStraight(-24, 0.2);
-            }
-        }
-        else if (glyphPos == 'c') {
-            if(this.allianceColor == RED) {
-                mecanumDrive.moveEncoderStraight(31, 0.2);
-            }else{
-                mecanumDrive.moveEncoderStraight(-31, 0.2);
-            }
-        }
-        else {
-            if(this.allianceColor == RED) {
-                mecanumDrive.moveEncoderStraight(24, .2);
-            }else{
-                mecanumDrive.moveEncoderStraight(-40, .2);
-            }
+        if(this.allianceColor == RED){
+            mecanumDrive.moveEncoderStraight(24, 0.2);
+        }else {
+            mecanumDrive.moveEncoderStraight(-24, 0.2);
         }
         while(!mecanumDrive.encoderDone()&&opModeIsActive()){
             telemetry.addData("Left target:", mecanumDrive.leftFront.getTargetPosition());
             telemetry.addData("Left current:", mecanumDrive.leftFront.getCurrentPosition());
             telemetry.update();
         }
+        mecanumDrive.move(0,0,0,0);
+        twait(500);
+        mecanumDrive.encoderTurn(90, .2);
+        while(!mecanumDrive.encoderDone() && opModeIsActive());
+        mecanumDrive.move(0,0,0,0);
+        twait(500);
+        if (glyphPos == 'l') {
+            mecanumDrive.moveEncoderStraight(-19.5, 0.2);
+        }
+        else if (glyphPos == 'c') {
+            mecanumDrive.moveEncoderStraight(-12, 0.2);
+        }
+        else {
+            mecanumDrive.moveEncoderStraight(-4, 0.2);
+        }
+
+        while(!mecanumDrive.encoderDone()&&opModeIsActive());
+
         mecanumDrive.move(0, 0, 0, 0);
         twait(1000);
-        mecanumDrive.encoderTurn(-97, .2);
-
-        while(!mecanumDrive.encoderDone() && opModeIsActive()){
-            telemetry.addData("Left target:", mecanumDrive.leftFront.getTargetPosition());
-            telemetry.addData("Left current:", mecanumDrive.leftFront.getCurrentPosition());
-            telemetry.addData("Right target:", mecanumDrive.rightFront.getTargetPosition());
-            telemetry.addData("Right current:", mecanumDrive.rightFront.getCurrentPosition());
-            telemetry.update();
-        }
-        telemetry.addData("Left target:", mecanumDrive.leftFront.getTargetPosition());
-        telemetry.addData("Left current:", mecanumDrive.leftFront.getCurrentPosition());
-        telemetry.addData("Right target:", mecanumDrive.rightFront.getTargetPosition());
-        telemetry.addData("Right current:", mecanumDrive.rightFront.getCurrentPosition());
-        telemetry.update();
+        mecanumDrive.encoderTurn(97, .2);
+        while(!mecanumDrive.encoderDone() && opModeIsActive());
 
         mecanumDrive.move(0, 0, 0, 0);
         twait(1000);

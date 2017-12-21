@@ -98,8 +98,8 @@ public class Drive1 extends OpMode
         telemetry.addData("Status", "Initialized");
         colorSensor = hardwareMap.get(ColorSensor.class, "color_sensor");
         clawControls.open();
-        //jewelServo.setPosition(0.075);
-
+        telemetry.addData("position", jewelServo.getPosition());
+        telemetry.update();
     }
 
 
@@ -125,25 +125,11 @@ public class Drive1 extends OpMode
     @Override
     public void loop() {
         //Fine motor controls
-        //create a factor up here so if fine movement needs to be adjusted, it can be in one fi
-        telemetry.addData("Position", "1");
-        telemetry.update();
-        telemetry.addData("motor-left-front", mecanumDrive.leftFront.getCurrentPosition());
-        telemetry.addData("motor-left-back", mecanumDrive.leftRear.getCurrentPosition());
-        telemetry.addData("motor-right-front", mecanumDrive.rightFront.getCurrentPosition());
-        telemetry.addData("motor-right-back", mecanumDrive.rightRear.getCurrentPosition());
-
-        telemetry.addData("Position", "2");
-        telemetry.update();
-
         if(gamepad2.dpad_up){
             relicArm.wristUp();
         }else if(gamepad2.dpad_down){
             relicArm.wristDown();
         }
-
-        telemetry.addData("Position", "3");
-        telemetry.update();
 
         if(gamepad2.dpad_left){
             relicArm.grab();
@@ -158,9 +144,6 @@ public class Drive1 extends OpMode
         }else if(gamepad2.b){
             clawControls.halfOpen();
         }
-
-        telemetry.addData("Position", "4");
-        telemetry.update();
 
         /*if (gamepad2.y) {
             if (relicArm.isWristUp && !wristButtonPressed){
@@ -201,9 +184,6 @@ public class Drive1 extends OpMode
             winchDrive.setPower(0);
         }
 
-        telemetry.addData("Position", "5");
-        telemetry.update();
-
         if (gamepad2.left_bumper)
             relicArm.push(1);
         else if (gamepad2.right_bumper)
@@ -218,22 +198,11 @@ public class Drive1 extends OpMode
             jewelServo.setPosition(0.1);
         }
 
-        telemetry.addData("Position", "6");
-        telemetry.update();
-
         if(gamepad1.y) {
             offsetAngle = 0;
         }else if(gamepad1.x){
             offsetAngle = 90;
-        }else if(gamepad1.a){
-            offsetAngle = 180;
-        }else if(gamepad1.b){
-            offsetAngle = 270;
         }
-
-        telemetry.addData("Position", "7");
-        telemetry.update();
-
 
 
         if(gamepad1.dpad_up || gamepad1.dpad_left || gamepad1.dpad_down ||gamepad1.dpad_right){
